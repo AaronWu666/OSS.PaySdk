@@ -25,6 +25,9 @@ using OSS.PaySdk.Wx.SysTools;
 
 namespace OSS.PaySdk.Wx.Pay
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class WxPayTradeApi : WxPayBaseApi
     {
         #region   全局错误码注册
@@ -89,10 +92,12 @@ namespace OSS.PaySdk.Wx.Pay
         {
             var addressUrl = string.Concat(m_ApiUrl, "/pay/orderquery");
 
-            var dics = new SortedDictionary<string, object>();
-            dics["nonce_str"] = Guid.NewGuid().ToString().Replace("-", "");
-            dics["out_trade_no"] = out_trade_no;
-            dics["transaction_id"] = transaction_id;
+            var dics = new SortedDictionary<string, object>
+            {
+                ["nonce_str"] = Guid.NewGuid().ToString().Replace("-", ""),
+                ["out_trade_no"] = out_trade_no,
+                ["transaction_id"] = transaction_id
+            };
 
             return await PostApiAsync<WxPayQueryOrderResp>(addressUrl, dics);
         }
@@ -207,12 +212,14 @@ namespace OSS.PaySdk.Wx.Pay
         /// <returns></returns>
         public string GetScanCallBackResponse(WxAddPayUniOrderResp uniOrder)
         {
-            var res = new WxPayScanCallBackResMo();
-            res.err_code_des = uniOrder.err_code_des;
-            res.prepay_id = uniOrder.prepay_id;
-            res.result_code = uniOrder.result_code;
-            res.return_code = uniOrder.return_code;
-            res.return_msg = uniOrder.return_msg;
+            var res = new WxPayScanCallBackResMo
+            {
+                err_code_des = uniOrder.err_code_des,
+                prepay_id = uniOrder.prepay_id,
+                result_code = uniOrder.result_code,
+                return_code = uniOrder.return_code,
+                return_msg = uniOrder.return_msg
+            };
 
             var dics = res.GetDics();
             dics.Add("appid", ApiConfig.AppId);

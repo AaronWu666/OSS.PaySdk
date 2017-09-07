@@ -27,30 +27,33 @@ namespace OSS.PaySdk.Wx.SysTools
         /// <returns></returns>
        public static string ProduceXml(this SortedDictionary<string,object> dics )
         {
-            StringBuilder xml = new StringBuilder();
+            var xml = new StringBuilder();
             xml.Append("<xml>");
             foreach (var item in dics)
             {
+                var value = item.Value?.ToString();
+                if (string.IsNullOrEmpty(value))
+                    continue;
+                
                 if (item.Value is int
                     || item.Value is Int64
                     || item.Value is double
                     || item.Value is float)
                 {
                     xml.Append("<").Append(item.Key).Append(">")
-                        .Append(item.Value)
+                        .Append(value)
                         .Append("</").Append(item.Key).Append(">");
                 }
                 else
                 {
                     xml.Append("<").Append(item.Key).Append(">")
                         .Append("<![CDATA[")
-                        .Append(item.Value)
+                        .Append(value)
                         .Append("]]>")
                         .Append("</").Append(item.Key).Append(">");
                 }
             }
             xml.Append("</xml>");
-
             return xml.ToString();
         }
 
@@ -71,12 +74,12 @@ namespace OSS.PaySdk.Wx.SysTools
 
             xmlDoc = new XmlDocument();
             xmlDoc.LoadXml(xmlStr);
-            XmlNode xmlNode = xmlDoc.FirstChild;
-            XmlNodeList nodes = xmlNode.ChildNodes;
+            var xmlNode = xmlDoc.FirstChild;
+            var nodes = xmlNode.ChildNodes;
 
             foreach (XmlNode xn in nodes)
             {
-                XmlElement xe = (XmlElement)xn;
+                var xe = (XmlElement)xn;
                 dirs[xe.Name] = xe.InnerText;
             }
 

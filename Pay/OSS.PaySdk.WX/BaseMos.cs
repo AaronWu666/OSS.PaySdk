@@ -12,12 +12,10 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
-using System.Net.Http;
-using System.Security.Cryptography.X509Certificates;
 using System.Xml;
 using OSS.Common.ComModels;
+using OSS.PaySdk.Wx.SysTools;
 
 namespace OSS.PaySdk.Wx
 {
@@ -30,7 +28,7 @@ namespace OSS.PaySdk.Wx
 
         public WxPayBaseReq()
         {
-            var nonceStr = Guid.NewGuid().ToString().Replace("-", "");
+            var nonceStr = SysUtil.GenerateNonceStr();
             _dics["nonce_str"] = nonceStr;
         }
 
@@ -104,7 +102,7 @@ namespace OSS.PaySdk.Wx
         /// </summary>  
         public string result_code
         {
-            get { return _resultCode; }
+            get => _resultCode;
             set
             {
                 _resultCode = value;
@@ -124,8 +122,7 @@ namespace OSS.PaySdk.Wx
         ///    错误代码描述 可空 String(128) 错误信息描述
         /// </summary>  
         public string err_code_des { get; set; }
-
-
+        
         /// <summary>
         ///   响应对象的xml实体
         /// </summary>
@@ -133,13 +130,13 @@ namespace OSS.PaySdk.Wx
 
         #region  处理结果字典赋值
 
-        private SortedDictionary<string, string> _dics;
+        private SortedDictionary<string, object> _dics;
 
         /// <summary>
         ///  把消息对应的xml字典，给属性赋值
         /// </summary>
         /// <param name="contentDirs"></param>
-        internal void FromResContent(SortedDictionary<string, string> contentDirs)
+        internal void FromResContent(SortedDictionary<string, object> contentDirs)
         {
             _dics = contentDirs;
 
@@ -173,9 +170,8 @@ namespace OSS.PaySdk.Wx
         {
             get
             {
-                string value;
-                _dics.TryGetValue(key, out value);
-                return value ?? string.Empty;
+                _dics.TryGetValue(key, out var value);
+                return value?.ToString() ?? string.Empty;
             }
         }
         #endregion

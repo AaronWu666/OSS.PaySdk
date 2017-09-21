@@ -37,7 +37,7 @@ namespace OSS.PaySdk.Wx.Cash
             var dics = cashReq.GetDics();
 
             dics.Add("mch_appid", ApiConfig.AppId);
-            dics.Add("mch_id", ApiConfig.MchId);
+            dics.Add("mchid", ApiConfig.MchId);
 
             CompleteDicSign(dics);
 
@@ -59,9 +59,11 @@ namespace OSS.PaySdk.Wx.Cash
         {
             var urlStr = string.Concat(m_ApiUrl, "/mmpaymkttransfers/gettransferinfo");
 
-            var dics = new SortedDictionary<string,object>();
-            dics["nonce_str"] = Guid.NewGuid().ToString().Replace("-", "");
-            dics["partner_trade_no"] = partner_trade_no;
+            var dics = new SortedDictionary<string, object>
+            {
+                ["nonce_str"] = SysUtil.GenerateNonceStr(),
+                ["partner_trade_no"] = partner_trade_no
+            };
 
             return await PostApiAsync<WxPayGetTransferCashResp>(urlStr, dics,null,GetCertHttpClient());
         }

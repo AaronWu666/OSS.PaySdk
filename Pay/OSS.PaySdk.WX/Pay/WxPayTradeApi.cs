@@ -13,7 +13,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using OSS.Common.ComModels;
 using OSS.Common.ComModels.Enums;
@@ -26,7 +25,7 @@ using OSS.PaySdk.Wx.SysTools;
 namespace OSS.PaySdk.Wx.Pay
 {
     /// <summary>
-    /// 
+    ///  发起支付相关API
     /// </summary>
     public class WxPayTradeApi : WxPayBaseApi
     {
@@ -38,8 +37,7 @@ namespace OSS.PaySdk.Wx.Pay
         }
 
         #endregion
-
-
+        
         /// <summary>
         /// 构造函数
         /// </summary>
@@ -50,35 +48,110 @@ namespace OSS.PaySdk.Wx.Pay
 
         #region  下单接口
 
+
         /// <summary>
         ///   统一下单接口
         /// </summary>
         /// <param name="order"></param>
         /// <returns></returns>
-        public async Task<WxAddPayUniOrderResp> AddUniOrderAsync(WxAddPayUniOrderReq order)
+        public async Task<WxAddPayOrderResp> AddUniOrderAsync(WxAddPayUniOrderReq order)
+        {
+            return await AddSmallAppOrderAsync(order);
+        }
+
+        /// <summary>
+        ///   统一下单接口
+        /// </summary>
+        /// <param name="order"></param>
+        /// <returns></returns>
+        public async Task<WxAddPayOrderResp> AddSmallAppOrderAsync(WxAddSmallAppOrderReq order)
         {
             var dics = order.GetDics();
             dics["notify_url"] = ApiConfig.NotifyUrl;
 
-            string addressUrl = string.Concat(m_ApiUrl, "/pay/unifiedorder");
+            var addressUrl = string.Concat(m_ApiUrl, "/pay/unifiedorder");
 
-            return await PostApiAsync<WxAddPayUniOrderResp>(addressUrl, dics);
+            return await PostApiAsync<WxAddPayOrderResp>(addressUrl, dics);
         }
 
+
         /// <summary>
-        ///   扫码下单接口
+        ///   刷卡下单接口
         /// 提交支付请求后微信会同步返回支付结果。当返回结果为“系统错误（err_code=SYSTEMERROR）”时，商户系统等待5秒后调用【查询订单API】，查询支付实际交易结果；
         /// 当返回结果为“USERPAYING”时，商户系统可设置间隔时间(建议10秒)重新查询支付结果，直到支付成功或超时(建议30秒)
         /// </summary>
         /// <param name="order"></param>
         /// <returns></returns>
-        public async Task<WxPayOrderTradeResp> AddMicroPayOrderAsync(WxAddMicroPayOrderReq order)
+        public async Task<WxAddMicroPayOrderResp> AddMicroPayOrderAsync(WxAddMicroPayOrderReq order)
         {
             var dics = order.GetDics();
-            string addressUrl = string.Concat(m_ApiUrl, "/pay/micropay");
+            var addressUrl = string.Concat(m_ApiUrl, "/pay/micropay");
 
-            return await PostApiAsync<WxPayOrderTradeResp>(addressUrl, dics);
+            return await PostApiAsync<WxAddMicroPayOrderResp>(addressUrl, dics);
         }
+
+        /// <summary>
+        ///  获取js唤起客户端参数
+        /// </summary>
+        /// <param name="prepayId">预支付交易Id</param>
+        /// <returns></returns>
+        public WxGetJsClientParaResp GetJsClientParaResp(string prepayId)
+        {
+            var jsPara = new WxGetJsClientParaResp
+            {
+                app_id = ApiConfig.AppId,
+                time_stamp = DateTime.Now.ToLocalSeconds().ToString(),
+                nonce = SysUtil.GenerateNonceStr(),
+                package = string.Concat("prepay_id=", prepayId)
+            };
+
+            var dics = new SortedDictionary<string, object>
+            {
+                ["appId"] = jsPara.app_id,
+                ["timeStamp"] = jsPara.time_stamp,
+                ["nonceStr"] = jsPara.nonce,
+                ["package"] = jsPara.package,
+                ["signType"] = jsPara.sign_type
+            };
+            jsPara.sign = GetSign(GetSignContent(dics));
+
+            return jsPara;
+        }
+
+        /// <summary>
+        /// 获取app唤起客户端参数
+        /// </summary>
+        /// <param name="prepayId">预支付交易Id</param>
+        /// <returns></returns>
+        public WxGetAppClientParaResp GetAppClientParaResp(string prepayId)
+        {
+            var appPara = new WxGetAppClientParaResp
+            {
+                app_id = ApiConfig.AppId,
+                mch_id = ApiConfig.MchId,
+                time_stamp = DateTime.Now.ToLocalSeconds().ToString(),
+                nonce = SysUtil.GenerateNonceStr(),
+                prepay_id = prepayId,
+
+                package = "Sign=WXPay"
+            };
+
+            var dics = new SortedDictionary<string, object>
+            {
+                ["appid"] = appPara.app_id,
+                ["partnerid"] = appPara.mch_id,
+                ["timeStamp"] = appPara.time_stamp,
+                ["nonceStr"] = appPara.nonce,
+                ["package"] = appPara.package,
+
+                ["prepayid"] = appPara.prepay_id
+            };
+            appPara.sign = GetSign(GetSignContent(dics));
+
+            return appPara;
+        }
+
+    
 
         #endregion
 
@@ -101,9 +174,7 @@ namespace OSS.PaySdk.Wx.Pay
 
             return await PostApiAsync<WxPayQueryOrderResp>(addressUrl, dics);
         }
-
-
-
+        
 
         #region  订单结果通知解析 和 生成返回结果xml方法
 
@@ -141,9 +212,11 @@ namespace OSS.PaySdk.Wx.Pay
         {
             var url = string.Concat(m_ApiUrl, "/tools/shorturl");
 
-            var dics = new SortedDictionary<string, object>();
-            dics["nonce_str"] = Guid.NewGuid().ToString().Replace("-", "");
-            dics["long_url"] = long_url;
+            var dics = new SortedDictionary<string, object>
+            {
+                ["nonce_str"] = SysUtil.GenerateNonceStr(),
+                ["long_url"] = long_url
+            };
 
             return await PostApiAsync<WxPayGetShortUrlResp>(url, dics, null, null,
                 d => d["long_url"] = d["long_url"].UrlEncode());
@@ -158,18 +231,16 @@ namespace OSS.PaySdk.Wx.Pay
         {
             var url = string.Concat(m_ApiUrl, "/tools/authcodetoopenid");
 
-            var dics = new SortedDictionary<string, object>();
-            dics["nonce_str"] = Guid.NewGuid().ToString().Replace("-", "");
-            dics["auth_code"] = auth_code;
+            var dics = new SortedDictionary<string, object>
+            {
+                ["nonce_str"] = SysUtil.GenerateNonceStr(),
+                ["auth_code"] = auth_code
+            };
 
             return await PostApiAsync<WxPayAuthCodeOpenIdResp>(url, dics);
         }
 
         #endregion
-
-
-
-
 
         #region   扫码支付模式一
 
@@ -180,16 +251,15 @@ namespace OSS.PaySdk.Wx.Pay
         /// <returns></returns>
         public string CreateScanCode(string product_id)
         {
-            var dics = new SortedDictionary<string, string>
+            var dics = new SortedDictionary<string, object>
             {
                 ["time_stamp"] = DateTime.Now.ToLocalSeconds().ToString(),
-                ["nonce_str"] = Guid.NewGuid().ToString().Replace("-", ""),
+                ["nonce_str"] = SysUtil.GenerateNonceStr(),
                 ["product_id"] = product_id,
                 ["appid"] = ApiConfig.AppId,
                 ["mch_id"] = ApiConfig.MchId
             };
-
-            string encStr = string.Join("&", dics.Select(k => string.Concat(k.Key, "=", k.Value)));
+            var encStr = GetSignContent(dics);
             var sign = GetSign(encStr);
 
             return string.Concat("weixin://wxpay/bizpayurl?", encStr, "&sign=", sign);
@@ -210,7 +280,7 @@ namespace OSS.PaySdk.Wx.Pay
         /// </summary>
         /// <param name="uniOrder"></param>
         /// <returns></returns>
-        public string GetScanCallBackResponse(WxAddPayUniOrderResp uniOrder)
+        public string GetScanCallBackResponse(WxAddPayOrderResp uniOrder)
         {
             var res = new WxPayScanCallBackResMo
             {
@@ -231,9 +301,7 @@ namespace OSS.PaySdk.Wx.Pay
 
 
         #endregion
-
-
-
+        
         #region  下载对账单
 
         /// <summary>

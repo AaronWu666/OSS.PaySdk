@@ -18,9 +18,10 @@ namespace OSS.PaySdk.Wx.Pay
 {
     public class WxPayRefundApi:WxPayBaseApi
     {
-        public WxPayRefundApi(WxPayCenterConfig config) : base(config)
+        public WxPayRefundApi(WxPayCenterConfig config=null) : base(config)
         {
         }
+
         #region   全局错误码注册
 
         static WxPayRefundApi()
@@ -34,6 +35,7 @@ namespace OSS.PaySdk.Wx.Pay
         }
 
         #endregion
+
         /// <summary>
         ///  申请退款接口 【需要证书】
         /// </summary>
@@ -54,17 +56,14 @@ namespace OSS.PaySdk.Wx.Pay
         /// </summary>
         /// <param name="refundReq"></param>
         /// <returns></returns>
-        public async Task<WxPayGetRefundResp> GetRefundAsync(WxPayRefundReq refundReq)
+        public async Task<WxPayGetRefundResp> QueryRefundAsync(WxPayRefundReq refundReq)
         {
             var dics = refundReq.GetDics();
             var url = string.Concat(m_ApiUrl, "/pay/refundquery");
 
             return await PostApiAsync<WxPayGetRefundResp>(url, dics);
         }
-
-
-
-
+        
         #region  关闭统一下单订单  和   撤销刷卡订单
 
         /// <summary> 

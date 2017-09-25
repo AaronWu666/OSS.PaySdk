@@ -16,6 +16,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
@@ -202,7 +203,19 @@ namespace OSS.PaySdk.Wx
             return encStr;
         }
 
+        /// <summary>
+        ///   接受微信支付通知后需要返回的信息
+        /// </summary>
+        /// <param name="res"></param>
+        /// <returns></returns>
+        public string GetCallBackReturnXml(ResultMo res)
+        {
+            return
+                $"<xml><return_code><![CDATA[{(res.IsSuccess() ? "SUCCESS" : "FAIL")}]]></return_code><return_msg><![CDATA[{res.msg}]]></return_msg></xml>";
+        }
         #endregion
+
+
 
         #region  全局错误处理
 
@@ -279,7 +292,7 @@ namespace OSS.PaySdk.Wx
    
             var reqHandler = new HttpClientHandler
             {
-                ServerCertificateCustomValidationCallback = (msg, c, chain, sslErrors) => true
+                ServerCertificateCustomValidationCallback = (msg, c, chain, sslErrors) => sslErrors == SslPolicyErrors.None
             };
 
             var cert = new X509Certificate2(ApiConfig.CertPath, ApiConfig.CertPassword);

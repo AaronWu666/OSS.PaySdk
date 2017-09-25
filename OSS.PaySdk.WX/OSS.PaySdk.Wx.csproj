@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Authors>Keivn</Authors>
+    <Company>OSSCoder</Company>
+    <Product>OSS.PayCenter</Product>
+    <Description>微信相关支付Api</Description>
+    <PackageIconUrl>http://img1.static.osscoder.com/logo.jpg</PackageIconUrl>
+    <PackageProjectUrl>https://github.com/KevinWG/OSS.PaySdk/tree/master/Pay/OSS.PaySdk.Wx</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/KevinWG/OSS.PaySdk</RepositoryUrl>
+    <PackageReleaseNotes>优化参数相关</PackageReleaseNotes>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <AssemblyVersion>1.1.5.3</AssemblyVersion>
+    <FileVersion>1.1.5.3</FileVersion>
+    <Copyright>OSSCoder</Copyright>
+    <PackageLicenseUrl>https://github.com/KevinWG/OSS.PaySdk/blob/master/LICENSE</PackageLicenseUrl>
+    <Version>1.1.5.3</Version>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>bin\Debug\netstandard1.3\OSS.PayCenter.WX.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>bin\Release\netstandard1.3\OSS.PaySdk.Wx.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="OSS.Common" Version="1.2.3.10" />
+    <PackageReference Include="OSS.Http" Version="2.3.5" />
+    <PackageReference Include="System.Xml.XmlDocument" Version="4.3.0" />
+  </ItemGroup>
+
+</Project>

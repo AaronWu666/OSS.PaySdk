@@ -22,16 +22,16 @@ namespace OSS.PaySdk.Ali
     /// </summary>
     public class ZPayBaseReq
     {
-        protected internal string notify_url;
+        protected internal string notifyUrl;
         internal string GetNotifyUrl()
         {
-            return notify_url;
+            return notifyUrl;
         }
 
-        protected internal string return_url;
+        protected internal string returnUrl;
         internal string GetReturnUrl()
         {
-            return return_url;
+            return returnUrl;
         }
 
         /// <summary>
@@ -80,36 +80,6 @@ namespace OSS.PaySdk.Ali
         /// </summary>  
         public string sub_msg { get; set; }
         
-        //private readonly SortedDictionary<string, string> _dics = new SortedDictionary<string, string>();
-
-        ///// <summary>
-        /////  设置子类中的涉及特有加密属性
-        ///// </summary>
-        //protected virtual void SetSignDicItems()
-        //{
-        //}
-
-        ///// <summary>
-        /////  设置加密字典条目
-        ///// </summary>
-        ///// <param name="key"></param>
-        ///// <param name="value"></param>
-        //protected void SetDicItem(string key, string value)
-        //{
-        //    if (!string.IsNullOrEmpty(value))
-        //        _dics[key] = value;
-        //}
-
-        //public SortedDictionary<string, string> GetDics()
-        //{
-        //    SetDicItem("code", code);
-        //    SetDicItem("msg", msg);
-        //    SetDicItem("sub_code", sub_code);
-        //    SetDicItem("sub_msg", sub_msg);
-        //    SetSignDicItems();
-
-        //    return _dics;
-        //}
     }
     
     /// <summary>
@@ -162,6 +132,10 @@ namespace OSS.PaySdk.Ali
         ///    String 必填 长度(3)  调用的接口版本，固定为：1.0
         /// </summary>  
         public string Version { get; set; } = "1.0";
-
+        
+        /// <summary>
+        ///  如果接口参数中没有传值，则默认使用此值
+        /// </summary>
+        public string NotifyUrl { get; set; }
     }
 }

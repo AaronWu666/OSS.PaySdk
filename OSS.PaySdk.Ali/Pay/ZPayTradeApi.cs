@@ -59,8 +59,7 @@ namespace OSS.PaySdk.Ali.Pay
         }
 
         #endregion
-
-
+        
         #region 发起客户端收款（自动唤起
 
         /// <summary>
@@ -190,7 +189,7 @@ namespace OSS.PaySdk.Ali.Pay
         /// <returns></returns>
         public ResultMo CheckCallBackSign(IDictionary<string, string> formDics)
         {
-            if (formDics.ContainsKey("sign"))
+            if (!formDics.ContainsKey("sign"))
             {
                 return new ResultMo(ResultTypes.ParaError,"未发现sign参数");
             }

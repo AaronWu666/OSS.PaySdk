@@ -25,7 +25,7 @@ namespace OSS.PaySdk.Samples.Controllers
         }
 
         private static readonly ZPayTradeApi _api = new ZPayTradeApi();
-
+        // 支付结果回调接收
         [HttpPost]
         public IActionResult receive(ZPayCallBackResp pay)
         {
@@ -38,14 +38,14 @@ namespace OSS.PaySdk.Samples.Controllers
             return Content("success");
         }
 
-
+        // 应用内浏览器支付信息
         [HttpPost]
         public async Task<IActionResult> GetOfficialPayInfo([FromBody] ZAddOfficialTradeReq order)
         {
             var orderRes = await _api.GetOfficialTradeAsync(order);
             return Json(orderRes);
         }
-
+        // 电脑端收银台支付
         [HttpPost]
         public IActionResult GetPagePayInfo(string orderId)
         {
@@ -61,7 +61,7 @@ namespace OSS.PaySdk.Samples.Controllers
             var orderRes = _api.GetPageTradeContent(order);
             return Json(orderRes);
         }
-
+        //  手机端网页支付
         [HttpPost]
         public IActionResult GetWapPayInfo(string orderId)
         {
@@ -77,7 +77,7 @@ namespace OSS.PaySdk.Samples.Controllers
             var orderRes = _api.GetWapTradeContent(order);
             return Json(orderRes);
         }
-
+        // 扫码支付
         [HttpPost]
         public async Task<IActionResult> GetScanPayInfo(string orderId)
         {
@@ -98,11 +98,18 @@ namespace OSS.PaySdk.Samples.Controllers
         /// <summary>
         /// 退款接口
         /// </summary>
-        /// <param name="req"></param>
+        /// <param name="orderId"></param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<IActionResult> refund([FromBody]ZPayRefundReq req)
+        public async Task<IActionResult> refund(string orderId)
         {
+            var req = new ZPayRefundReq
+            {
+                out_trade_no = orderId,
+                out_request_no = orderId,
+                refund_amount = 0.01m
+            };
+            
             var refundRes = await _refundApi.RefunPayAsync(req);
 
             return Json(refundRes);
